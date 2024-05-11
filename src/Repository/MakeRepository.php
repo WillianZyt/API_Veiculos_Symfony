@@ -24,6 +24,18 @@ class MakeRepository extends ServiceEntityRepository
         $this->em->flush();
     }
 
+    public function update(Make $make): void
+    {
+        $this->em->persist($make);
+        $this->em->flush();
+    }
+
+    public function remove(Make $make): void
+    {
+        $this->em->remove($make);
+        $this->em->flush();
+    }
+
 
     //    /**
     //     * @return Make[] Returns an array of Make objects

@@ -23,6 +23,17 @@ class ModelRepository extends ServiceEntityRepository
         $this->em->flush();
     }
 
+    public function update(Model $model): void
+    {
+        $this->em->flush();
+    }
+
+    public function remove(Model $model): void
+    {
+        $this->em->remove($model);
+        $this->em->flush();
+    }
+
     //    /**
     //     * @return Model[] Returns an array of Model objects
     //     */
