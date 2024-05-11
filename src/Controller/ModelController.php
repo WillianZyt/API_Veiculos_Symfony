@@ -67,7 +67,7 @@ class ModelController extends AbstractController
     }
 
 
-    #[Route('/{id}', name: 'app_create_model_name', methods: ['POST'])]
+    #[Route('/', name: 'app_create_model_name', methods: ['POST'])]
     #[AT\Post(summary: 'Create a model')]
     #[AT\RequestBody(
         description: 'Provide the name, year, color, fuel and category of the model',
@@ -136,6 +136,42 @@ class ModelController extends AbstractController
             'data' => $serializer->normalize($model, 'json', ['groups' => 'model']),
         ]);
     }
+
+    #[Route('/{id}', name: 'app_change_model', methods: ['PATCH'])]
+    #[AT\Patch(summary: 'Change one or more fields of a model')]
+    #[AT\RequestBody(
+        description: 'Provide the name, year, color, fuel and category of the model',
+        required: true,
+        content: new AT\JsonContent(
+            type: 'object',
+            example: [
+                'name' => 'Fusca',
+                'year' => 2021,
+                'color' => 'red',
+                'fuel' => 'gasoline',
+                'category' => 1,
+            ]
+        )
+    )]
+    #[AT\Tag(name: 'Models')]
+    public function change(int $id, Request $request, ModelRepository $modelRepository, MakeRepository $makeRepository, SerializerInterface $serializer ): JsonResponse {
+        
+        $data = json_decode($request->getContent(), true);
+        
+        $model = $modelRepository->findOneBy(['id' => $id]);
+        $model->setName($data['name']);
+        $model->setYear($data['year']);
+        $model->setColor($data['color']);
+        $model->setFuel($data['fuel']);
+        $model->setCategory($makeRepository->findOneBy(['id' => $data['category']]));
+
+        $modelRepository->update($model);
+        return $this->json([
+            'message' => 'Model updated!',
+            'data' => $serializer->normalize($model, 'json', ['groups' => 'model']),
+        ]);
+    }
+    
 
     #[Route('/{id}', name: 'app_delete_model', methods: ['DELETE'])]
     #[AT\Delete(summary: 'Delete a model')]
