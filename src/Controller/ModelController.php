@@ -13,6 +13,8 @@ use Symfony\Component\Serializer\SerializerInterface;
 use OpenApi\Attributes as AT;
 use Symfony\Component\Routing\Attribute\Route;
 
+use function PHPSTORM_META\type;
+
 #[Route('/models')]
 class ModelController extends AbstractController
 {
@@ -67,8 +69,18 @@ class ModelController extends AbstractController
     }
 
 
-    #[Route('/{id}', name: 'app_create_model_name', methods: ['POST'])]
+    #[Route('/', name: 'app_create_model_name', methods: ['POST'])]
     #[AT\Post(summary: 'Create a model')]
+    #[AT\Parameter(
+        name: 'makeId',
+        in: 'query',
+        required: true,
+        description: 'The ID of the make',
+        example: 1,
+        content: new AT\JsonContent(
+            type: 'integer',
+        )
+    )]
     #[AT\RequestBody(
         description: 'Provide the name, year, color, fuel and category of the model',
         required: true,
@@ -79,21 +91,21 @@ class ModelController extends AbstractController
                 'year' => 2021,
                 'color' => 'red',
                 'fuel' => 'gasoline',
-                'category' => 1,
             ]
         )
     )]
     #[AT\Tag(name: 'Models')]
-    public function create( Request $request, ModelRepository $modelRepository, MakeRepository $makeRepository, SerializerInterface $serializer ): JsonResponse 
+    public function create( Request $request, ModelRepository $modelRepository, MakeRepository $makeRepository, SerializerInterface $serializer): JsonResponse 
     {   
         $data = json_decode($request->getContent(), true);
-        
+        $make = $makeRepository->findOneBy(['id' => $request->query->get('makeId')]);
+
         $model = new Model();
         $model->setName($data['name']);
         $model->setYear($data['year']);
         $model->setColor($data['color']);
         $model->setFuel($data['fuel']);
-        $model->setCategory($makeRepository->findOneBy(['id' => $data['category']]));
+        $model->setCategory($make);
 
         $modelRepository->create($model);
         return $this->json([
