@@ -35,8 +35,7 @@ class MakeController extends AbstractController
         ]);
     }
 
-    #[Route('/{id}', name: 'app_make_create', methods: ['POST'])]
-    #[AT\Post(summary: 'Create a make')]
+    #[Route('/', name: 'app_make_create', methods: ['POST'])]
     #[AT\RequestBody(
         content: new AT\JsonContent(
             example: ['name' => 'Volkswagen']
